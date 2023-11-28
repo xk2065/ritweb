@@ -1,5 +1,6 @@
 package com.yuwen.rtiweb.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,26 +17,25 @@ import javax.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-    private final JavaMailSender javaMailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    public EmailService(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine) {
-        this.javaMailSender = javaMailSender;
+    @Autowired
+    public EmailService(SpringTemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
     }
 
     public void sendEmailWithVerificationCode(String to, String subject, String verificationCode) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
         try {
             helper.setTo(to);
             helper.setFrom(senderEmail);
             helper.setSubject(subject);
-
             // 使用 Thymeleaf 模板引擎填充 HTML 内容中的占位符
             String htmlContent = getHtmlContentWithVerificationCode(verificationCode);
             helper.setText(htmlContent, true);
@@ -51,7 +51,6 @@ public class EmailService {
         // 创建 Thymeleaf 上下文
         Context context = new Context();
         context.setVariable("verificationCode", verificationCode);
-
         // 使用 Thymeleaf 模板引擎渲染 HTML 内容
         return templateEngine.process("emailTemplate", context);
     }

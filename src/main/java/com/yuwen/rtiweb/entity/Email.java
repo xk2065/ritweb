@@ -1,5 +1,8 @@
 package com.yuwen.rtiweb.entity;
 
+/**
+ * @author Administrator
+ */
 public class Email {
     private String email;
     private String ipAddress;
